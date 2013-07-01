@@ -1,32 +1,35 @@
-#! /bin/bash -x
+#! /bin/bash
 # script to build sitebuilder local site
 # Run it on your document root like :
 # $ makedrupal <foldername> <make.file location> <profile>
-
+# echo -e '\E[37;44m'"\033[1mContact List\033[0m"
 
 if [ ! -n $1 ]; then
-	echo "Enter a directory name"
+	echo -e "\e[00;31mEnter a directory name\e[00m"
 elif [ -d $1 ]; then
-	echo "$1 project already exists"
+	echo -e '\E[33;31m'"\033[1mProject allready exists\033[0m"
 else
-	echo "opening $1"
+	echo -e "\e[00;32mOpening $1\e[00m"
 	mkdir -p $1 && cd $1
 
 	if [ ! -f $2 ]; then
-		echo "make file does not exist"
+		echo -e "\e[00;31mmake file does not exist\e[00m"
 	else
 		profile="standard"
 		if [ ! -n $3 ]; then
-			echo "Using default profile"
+			echo -e "\e[00;32mUsing default profile\e[00m"
 		else
 			profile=$3
-			echo "Installing using $profile profile"
+			echo -e "\e[00;32mInstalling using $profile profile\e[00m"
 		fi
-		drush make --working-copy --no-gitinfofile $2 -y
+		drush make -q --working-copy --no-gitinfofile $2 -y
 
 		cd sites/all/libraries/php-sdk/
-
-		composer install
+		echo -e "\e[00;32mInstalling composer dependencies...\e[00m"
+		composer install -q
+		echo -e "\e[00;32mInstalling Drupal...\e[00m"
 		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1/$1 $profile -y
+		echo -e "\e[00;32mLaunching installation...\e[00m"
+		x-www-browser http://localhost/$1
 	fi
 fi
