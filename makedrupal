@@ -1,0 +1,25 @@
+#! /bin/bash
+# script to build sitebuilder local site
+# Run it on your document root like :
+# $ makedrupal <foldername> <make.file location>
+
+
+if [ ! -n $1 ]; then
+	echo "Enter a directory name"
+elif [ -d $1 ]; then
+	echo "$1 project already exists"
+else
+	echo "opening $1"
+	mkdir -p $1 && cd $1
+
+	if [ ! -f $2 ]; then
+		echo "make file does not exist"
+	else
+		drush make --working-copy --no-gitinfofile $2 -y
+
+		cd sites/all/libraries/php-sdk/
+
+		composer install
+		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1/$1 sitebuilder -y
+	fi
+fi
