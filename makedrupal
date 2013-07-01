@@ -15,7 +15,7 @@ else
 	if [ ! -f $2 ]; then
 		echo "make file does not exist"
 	else
-		profile="default"
+		profile="standard"
 		if [ ! -n $3 ]; then
 			echo "Using default profile"
 		else
