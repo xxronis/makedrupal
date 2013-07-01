@@ -1,7 +1,7 @@
-#! /bin/bash
+#! /bin/bash -x
 # script to build sitebuilder local site
 # Run it on your document root like :
-# $ makedrupal <foldername> <make.file location>
+# $ makedrupal <foldername> <make.file location> <profile>
 
 
 if [ ! -n $1 ]; then
@@ -15,11 +15,18 @@ else
 	if [ ! -f $2 ]; then
 		echo "make file does not exist"
 	else
+		profile="default"
+		if [ ! -n $3 ]; then
+			echo "Using default profile"
+		else
+			profile=$3
+			echo "Installing using $profile profile"
+		fi
 		drush make --working-copy --no-gitinfofile $2 -y
 
 		cd sites/all/libraries/php-sdk/
 
 		composer install
-		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1/$1 sitebuilder -y
+		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1/$1 $profile -y
 	fi
 fi
