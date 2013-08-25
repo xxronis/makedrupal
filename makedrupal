@@ -24,7 +24,7 @@ else
 
 		# Choose database, host and port and credentials,
 		# the database will be named after your installation folder
-		db="mysql://root:root@127.0.0.1"
+		db="mysql://root:root@127.0.0.1:8889"
 		if [ ! -n $4 ]; then
 			echo -e "\x1B[00;32mUsing default MySql config...\x1B[00m"
 		else
