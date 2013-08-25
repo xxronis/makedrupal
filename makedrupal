@@ -1,8 +1,7 @@
 #! /bin/bash
 # script to build sitebuilder local site
 # Run it on your document root like :
-# $ makedrupal <foldername> <make.file location> <profile>
-# echo -e '\E[37;44m'"\033[1mContact List\033[0m"
+# $ makedrupal <foldername> <make.file location> <profile> <host>
 
 if [ ! -n $1 ]; then
 	echo -e "\e[00;31mEnter a directory name\e[00m"
@@ -22,14 +21,24 @@ else
 			profile=$3
 			echo -e "\e[00;32mInstalling using $profile profile\e[00m"
 		fi
-		drush make -q --working-copy --no-gitinfofile $2 -y
 
-		cd sites/all/libraries/php-sdk/
-		echo -e "\e[00;32mInstalling composer dependencies...\e[00m"
-		composer install -q
-		echo -e "\e[00;32mInstalling Drupal...\e[00m"
-		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1/$1 $profile -y
-		echo -e "\e[00;32mLaunching installation...\e[00m"
-		x-www-browser http://localhost/$1
+		# Choose database, host and port and credentials,
+		# the database will be named after your installation folder
+		db="mysql://root:root@127.0.0.1"
+		if [ ! -n $4 ]; then
+			echo -e "\x1B[00;32mUsing default MySql config...\x1B[00m"
+		else
+			db=$4
+			echo -e "\x1B[00;32mUsing $db configuration...\x1B[00m"
+			drush make -q --working-copy --no-gitinfofile $2 -y
+		fi
+
+		# Install Drupal
+		echo -e "\x1B[00;32mInstalling Drupal...\x1B[00m"
+		drush si --account-pass=admin --clean-url=1 --db-url=$db/$1 $profile -y -q
+
+		# Launch website
+		echo -e "\x1B[00;32mLaunching your new site...\x1B[00m"
+		open http://localhost/$1
 	fi
 fi
