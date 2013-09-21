@@ -24,15 +24,14 @@ else
 
 		# Choose database, host and port and credentials,
 		# the database will be named after your installation folder
-		db="mysql://root:root@127.0.0.1:8889"
+		db="mysql://developer:enosis21@127.0.0.1:8889"
 		if [ ! -n $4 ]; then
 			echo -e "\x1B[00;32mUsing default MySql config...\x1B[00m"
 		else
-			db=$4
+			# db=$4
 			echo -e "\x1B[00;32mUsing $db configuration...\x1B[00m"
-			drush make -q --working-copy --no-gitinfofile $2 -y
 		fi
-
+		drush make -q --working-copy --no-gitinfofile $2 -y
 		# Install Drupal
 		echo -e "\x1B[00;32mInstalling Drupal...\x1B[00m"
 		drush si --account-pass=admin --clean-url=1 --db-url=$db/$1 $profile -y -q
