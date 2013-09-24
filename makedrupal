@@ -31,10 +31,10 @@ else
 			# db=$4
 			echo -e "\x1B[00;32mUsing $db configuration...\x1B[00m"
 		fi
-		drush58 make -q --working-copy --no-gitinfofile $2 -y
+		drush make -q --working-copy --no-gitinfofile $2 -y
 		# Install Drupal
 		echo -e "\x1B[00;32mInstalling Drupal...\x1B[00m"
-		drush58 si --account-pass=admin --clean-url=1 --db-url=$db/$1 $profile -y -q
+		drush si --account-pass=admin --clean-url=1 --db-url=$db/$1 $profile -y -q
 
 		# Launch website
 		echo -e "\x1B[00;32mLaunching your new site...\x1B[00m"
