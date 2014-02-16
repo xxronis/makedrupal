@@ -1,43 +1,64 @@
 #! /bin/bash
 # script to build sitebuilder local site
 # Run it on your document root like :
-# $ makedrupal <foldername> <make.file location> <profile> <host>
+# $ makedrupal <foldername> <make.file location> <profile>
+# echo -e '\E[37;44m'"\033[1mContact List\033[0m"
+# set -x #debug option
 
-if [ ! -n $1 ]; then
-	echo -e "\e[00;31mEnter a directory name\e[00m"
-elif [ -d $1 ]; then
-	echo -e '\E[33;31m'"\033[1mProject allready exists\033[0m"
-else
-	echo -e "\e[00;32mOpening $1\e[00m"
-	mkdir -p $1 && cd $1
+# COL_BLUE="\x1b[34;01m"
+# COL_RESET="\x1b[39;41;01m"
+
+build_site() {
+	echo "*** Building $1 app..."
+	# Make site folder.
+	mkdir -p $1
 
 	if [ ! -f $2 ]; then
-		echo -e "\e[00;31mmake file does not exist\e[00m"
+		echo "**! make file does not exist"
 	else
+		# absolute path of makefile
+		# http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
+		# alias readlink=greadlink for consistency
+		makefile=$(greadlink -m $2)
+		echo "*** Using $makefile makeFile..."
+		# default profile if none given
 		profile="standard"
 		if [ ! -n $3 ]; then
-			echo -e "\e[00;32mUsing default profile\e[00m"
+			echo "*** Using default profile"
 		else
 			profile=$3
-			echo -e "\e[00;32mInstalling using $profile profile\e[00m"
+			echo "**> Installing using $profile profile"
 		fi
+		echo "**> Opening $1..."
+		cd $1
+		drush make --working-copy --no-gitinfofile $makefile -y
 
-		# Choose database, host and port and credentials,
-		# the database will be named after your installation folder
-		db="mysql://root:root@127.0.0.1:8889"
-		if [ ! -n $4 ]; then
-			echo -e "\x1B[00;32mUsing default MySql config...\x1B[00m"
-		else
-			# db=$4
-			echo -e "\x1B[00;32mUsing $db configuration...\x1B[00m"
-		fi
-		drush make -q --working-copy --no-gitinfofile $2 -y
-		# Install Drupal
-		echo -e "\x1B[00;32mInstalling Drupal...\x1B[00m"
-		drush si --account-pass=admin --clean-url=1 --db-url=$db/$1 $profile -y -q
+		echo "*** Installing Drupal..."
+		drush si --account-pass=admin --clean-url=1 --db-url=mysql://root:root@127.0.0.1:8889/$1 $profile -y # --uri=http://book.local/$1
+		echo -e "*** Launching installation..."
 
-		# Launch website
-		echo -e "\x1B[00;32mLaunching your new site...\x1B[00m"
-		open http://localhost/$1
+		# open in browser
+		# TODO auto document root
+		open http://127.0.0.1/$1
 	fi
+}
+# Strip slash if any in dest path
+target=${1%/}
+
+if [ ! -n $1 ]; then
+	echo "**!  Enter a directory name!"
+elif [ -d $target ]; then
+	echo "**! $target project allready exists."
+	read -p "**! Would you like to replace the $target project files and database? (y/n)? " -n 1 -r
+	echo    # (optional) move to a new line
+	if [[ ! $REPLY =~ ^[Yy]$ ]]
+	then
+	    echo "Terminated."
+	    exit 1
+	else
+		sudo rm -rf $target
+		build_site $target $2 $3
+	fi
+else
+	build_site $target $2 $3
 fi
