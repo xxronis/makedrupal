@@ -18,7 +18,7 @@ build_site() {
 	else
 		# absolute path of makefile
 		# http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
-		# alias readlink=greadlink for consistency
+		# TODO alias readlink=greadlink for consistency
 		makefile=$(greadlink -m $2)
 		echo "*** Using $makefile makeFile..."
 		# default profile if none given
